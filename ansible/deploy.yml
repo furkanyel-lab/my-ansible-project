@@ -1,7 +1,13 @@
 - hosts: web
   become: yes
   tasks:
-    - name: Mevcut konteynerları durdur ve temizle
+    - name: Docker Compose yuklu mu kontrol et ve yukle
+      apt:
+        name: docker-compose
+        state: present
+        update_cache: yes
+
+    - name: Mevcut konteynerlari durdur ve temizle
       shell: "docker-compose -f /home/ubuntu/project/docker-compose.yml down --remove-orphans || true"
 
     - name: Proje klasörünü temizle
