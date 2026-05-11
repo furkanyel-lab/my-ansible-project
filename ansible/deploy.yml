@@ -1,24 +1,24 @@
 - hosts: web
   become: yes
   tasks:
-    - name: Docker Compose yüklü mü kontrol et
-      apt:
-        name: docker-compose
-        state: present
+    - name: Mevcut konteynerları durdur ve temizle
+      shell: "docker-compose -f /home/ubuntu/project/docker-compose.yml down --remove-orphans || true"
 
-    - name: Eski konteynerları durdur
-      shell: "docker-compose -f /home/ubuntu/project/docker-compose.yml down || true"
+    - name: Proje klasörünü temizle
+      file:
+        path: /home/ubuntu/project
+        state: absent
 
-    - name: Proje klasörünü temizle ve oluştur
+    - name: Proje klasörünü yeniden oluştur
       file:
         path: /home/ubuntu/project
         state: directory
         mode: '0755'
 
-    - name: Dosyaları sunucuya kopyala
+    - name: Dosyaları kopyala
       copy:
         src: ../
         dest: /home/ubuntu/project/
 
-    - name: Docker Compose ile MHRS'yi ayağa kaldır
+    - name: MHRS Sistemini Başlat
       shell: "cd /home/ubuntu/project && docker-compose up -d --build"
