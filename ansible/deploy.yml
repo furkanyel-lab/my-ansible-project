@@ -1,18 +1,24 @@
-- name: Docker container deploy
-  hosts: web
+- hosts: web
   become: yes
   tasks:
-    - name: Docker kur
+    - name: Docker Compose yüklü mü kontrol et
       apt:
-        name: docker.io
+        name: docker-compose
         state: present
-        update_cache: yes
-    - name: Docker başlat
-      service:
-        name: docker
-        state: started
-        enabled: yes
-    - name: Eski container sil
-      shell: docker rm -f myapp || true
-    - name: Yeni container çalıştır
-      shell: docker run -d -p 80:5000 --name myapp yelfurkan/myapp:latest
+
+    - name: Eski konteynerları durdur
+      shell: "docker-compose -f /home/ubuntu/project/docker-compose.yml down || true"
+
+    - name: Proje klasörünü temizle ve oluştur
+      file:
+        path: /home/ubuntu/project
+        state: directory
+        mode: '0755'
+
+    - name: Dosyaları sunucuya kopyala
+      copy:
+        src: ../
+        dest: /home/ubuntu/project/
+
+    - name: Docker Compose ile MHRS'yi ayağa kaldır
+      shell: "cd /home/ubuntu/project && docker-compose up -d --build"

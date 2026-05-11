@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MHRS - Giriş Sistemi</title>
+    <style>
+        :root {
+            --mhrs-blue: #007bff;
+            --mhrs-gray: #f8f9fa;
+            --danger-red: #dc3545;
+            --text-dark: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 25px;
+            background: var(--mhrs-gray);
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+            transition: 0.3s;
+            border-radius: 8px;
+        }
+
+        .tab-btn.active {
+            background-color: white;
+            color: var(--mhrs-blue);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 { color: var(--text-dark); margin-bottom: 20px; font-size: 22px; text-align: center; }
+
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 14px; }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+        input:focus { border-color: var(--mhrs-blue); outline: none; }
+
+        .login-btn {
+            background-color: var(--mhrs-blue);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* --- HATA MODALI STİLLERİ --- */
+        #error-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            backdrop-filter: blur(2px);
+        }
+
+        #error-modal {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            z-index: 1001;
+            text-align: center;
+            width: 320px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            border-top: 5px solid var(--danger-red);
+        }
+
+        .modal-icon { font-size: 40px; margin-bottom: 15px; }
+        .modal-msg { color: #333; font-weight: 500; margin-bottom: 20px; line-height: 1.5; }
+        .modal-close-btn {
+            background: var(--danger-red);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="error-overlay" onclick="closeError()"></div>
+    <div id="error-modal">
+        <div class="modal-icon">⚠️</div>
+        <div class="modal-msg" id="errorMessage">Hatalı kullanıcı adı veya şifre!</div>
+        <button class="modal-close-btn" onclick="closeError()">Tamam</button>
+    </div>
+
+    <div class="login-container">
+        <div class="tab-container">
+            <button id="doctorTab" class="tab-btn active" onclick="setRole('doctor')">Doktor Girişi</button>
+            <button id="patientTab" class="tab-btn" onclick="setRole('patient')">Hasta Girişi</button>
+        </div>
+
+        <h2 id="loginTitle">Doktor Giriş Paneli</h2>
+        
+        <div class="input-group">
+            <label>Kullanıcı Adı</label>
+            <input type="text" id="username" placeholder="Kullanıcı adınızı giriniz">
+        </div>
+
+        <div class="input-group">
+            <label>Şifre</label>
+            <input type="password" id="password" placeholder="••••••">
+        </div>
+
+        <button class="login-btn" onclick="handleLogin()">Giriş Yap</button>
+    </div>
+
+    <script>
+        let currentRole = 'doctor';
+
+        function setRole(role) {
+            currentRole = role;
+            document.getElementById('doctorTab').classList.toggle('active', role === 'doctor');
+            document.getElementById('patientTab').classList.toggle('active', role === 'patient');
+            document.getElementById('loginTitle').innerText = (role === 'doctor') ? "Doktor Giriş Paneli" : "Hasta / Admin Girişi";
+        }
+
+        // --- HATA MODALINI AÇMA ---
+        function showError(msg) {
+            document.getElementById('errorMessage').innerText = msg;
+            document.getElementById('error-overlay').style.display = 'block';
+            document.getElementById('error-modal').style.display = 'block';
+        }
+
+        // --- HATA MODALINI KAPATMA ---
+        function closeError() {
+            document.getElementById('error-overlay').style.display = 'none';
+            document.getElementById('error-modal').style.display = 'none';
+        }
+
+        function handleLogin() {
+            const userVal = document.getElementById('username').value.trim().toLowerCase();
+            const passVal = document.getElementById('password').value;
+
+            const doctorList = {
+                "ahmet": "Dr. Ahmet Yılmaz",
+                "ayse": "Dr. Ayşe Demir",
+                "mehmet": "Dr. Mehmet Can"
+            };
+
+            if (currentRole === 'doctor') {
+                if (doctorList[userVal]) {
+                    if (passVal === "123") {
+                        localStorage.setItem('loggedDoc', doctorList[userVal]);
+                        window.location.href = "doctor/dashboard.html";
+                    } else {
+                        showError("Girdiğiniz doktor şifresi hatalıdır. Lütfen kontrol edin.");
+                    }
+                } else {
+                    showError("Bu kullanıcı adı doktor listesinde bulunamadı. Lütfen doğru sekmede olduğunuzdan emin olun.");
+                }
+            } 
+            else if (currentRole === 'patient') {
+                if (userVal === "hasta" || userVal === "admin") {
+                    if (passVal === "123") {
+                        localStorage.setItem('loggedPatient', userVal.toUpperCase());
+                        window.location.href = "patient/dashboard.html";
+                    } else {
+                        showError("Hasta/Admin şifresi hatalıdır.");
+                    }
+                } else {
+                    showError("Hatalı kullanıcı adı! Bu giriş alanı sadece hastalar ve sistem yöneticileri içindir.");
+                }
+            }
+        }
+
+        document.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLogin(); });
+    </script>
+</body>
+</html>

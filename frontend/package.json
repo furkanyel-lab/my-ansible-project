@@ -1,0 +1,15 @@
+{
+  "name": "mhrs-frontend",
+  "version": "1.0.0",
+  "description": "MHRS Frontend Otomatik Yenileme Sistemi",
+  "main": "index.js",
+  "scripts": {
+    "start": "browser-sync start --server \"public\" --files \"public/**/*\" --no-notify"
+  },
+  "keywords": [],
+  "author": "Furkan",
+  "license": "ISC",
+  "devDependencies": {
+    "browser-sync": "^3.0.0"
+  }
+}

@@ -5,24 +5,11 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
     - name: Repo çek
       uses: actions/checkout@v3
-
-    - name: Docker login
-      run: echo "${{ secrets.DOCKER_PASS }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
-
-    - name: Image build
-      run: docker build -t yelfurkan/myapp:latest .
-
-    - name: Image push
-      run: docker push yelfurkan/myapp:latest
-
-    - name: Ansible kur
-      run: sudo apt update && sudo apt install ansible -y
 
     - name: SSH key ekle
       run: |
@@ -30,7 +17,7 @@ jobs:
         echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
 
-    - name: Deploy
+    - name: Deploy (Ansible)
       run: |
         ansible-playbook -i ansible/inventory.ini ansible/deploy.yml \
         --private-key ~/.ssh/id_rsa \

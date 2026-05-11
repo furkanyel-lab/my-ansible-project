@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MHRS - Hasta Randevu Paneli</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR (YAN MENÜ) --- */
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            background-color: #ffffff;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-content { padding: 20px; }
+
+        .sidebar a {
+            padding: 12px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #dc3545;
+            display: block;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #dc3545;
+        }
+        .sidebar a:hover { background-color: #dc3545; color: white; }
+
+        .sidebar h3 { 
+            color: #333; 
+            font-size: 18px; 
+            border-bottom: 2px solid #007bff; 
+            padding-bottom: 5px; 
+            margin-top: 25px;
+        }
+
+        /* Hamburger İkonu */
+        .menu-icon {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 1001;
+            background: white;
+            padding: 5px 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Ana Form Paneli */
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h2 { color: #333; margin-bottom: 25px; }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
+        
+        select, input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .btn-main {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+        }
+        .btn-main:hover { background-color: #0056b3; }
+
+        /* Randevu Kartları */
+        .appointment-card {
+            background: #f8f9fa;
+            border-left: 5px solid #007bff;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .past-card {
+            border-left-color: #6c757d;
+            background: #eee;
+            color: #777;
+        }
+
+        /* --- MODAL & TOAST --- */
+        #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1002; }
+        #custom-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; z-index: 1003; text-align: center; min-width: 300px; }
+        
+        .confirm-btn { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px; }
+        .cancel-btn { background: #666; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+
+        #toast {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            z-index: 1004;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="menu-icon" onclick="toggleSidebar()">☰</div>
+
+    <div id="mySidebar" class="sidebar">
+        <div class="sidebar-content">
+            <a href="../login.html">↩ Çıkış Yap</a>
+            
+            <h3>Aktif Randevularım</h3>
+            <div id="activeList">
+                <p style="color: #999; font-size: 13px;">Yükleniyor...</p>
+            </div>
+
+            <hr style="margin-top:20px; border: 0; border-top: 1px solid #eee;">
+
+            <h3 style="color: #666;">Geçmiş Randevularım</h3>
+            <div id="pastList">
+                <p style="color: #999; font-size: 13px;">Kayıt yok.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Yeni Randevu Oluştur</h2>
+        <div class="input-group">
+            <label>Doktor Seçin</label>
+            <select id="docSelect">
+                <option value="Dr. Ahmet Yılmaz">Dr. Ahmet Yılmaz</option>
+                <option value="Dr. Ayşe Demir">Dr. Ayşe Demir</option>
+                <option value="Dr. Mehmet Can">Dr. Mehmet Can</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>Randevu Tarihi</label>
+            <input type="date" id="dateInput">
+        </div>
+        <button class="btn-main" onclick="openModal()">Randevu Oluştur</button>
+    </div>
+
+    <div id="modal-overlay"></div>
+    <div id="custom-modal">
+        <p style="font-size: 18px;">Randevu onaylansın mı?</p>
+        <div style="margin-top:20px;">
+            <button class="confirm-btn" onclick="saveAppointment()">Evet</button>
+            <button class="cancel-btn" onclick="closeModal()">Vazgeç</button>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+        let allAppointments = [];
+        let isSidebarOpen = false;
+
+        window.onload = fetchAll;
+
+        function toggleSidebar() {
+            const sb = document.getElementById("mySidebar");
+            sb.style.width = isSidebarOpen ? "0" : "300px";
+            isSidebarOpen = !isSidebarOpen;
+        }
+
+        function openModal() {
+            if(!document.getElementById('dateInput').value) {
+                showToast("Lütfen tarih seçin!", true);
+                return;
+            }
+            document.getElementById('modal-overlay').style.display = 'block';
+            document.getElementById('custom-modal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+            document.getElementById('custom-modal').style.display = 'none';
+        }
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.innerText = (isError ? "✖ " : "✔ ") + msg;
+            toast.style.backgroundColor = isError ? "#ff4d4d" : "#28a745";
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        async function fetchAll() {
+            try {
+                const res = await fetch('http://localhost:5000/api/appointments');
+                if (res.ok) {
+                    allAppointments = await res.json();
+                    renderLists();
+                }
+            } catch (err) { console.log("Backend bekleniyor..."); }
+        }
+
+        async function saveAppointment() {
+            const doctorName = document.getElementById('docSelect').value;
+            const appointmentDate = document.getElementById('dateInput').value;
+
+            // AYNI GÜN KONTROLÜ
+            const duplicate = allAppointments.some(a => a.appointmentDate === appointmentDate && a.status !== 'completed');
+            if(duplicate) {
+                showToast("Bu tarihte zaten aktif bir randevunuz var!", true);
+                closeModal();
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/appointments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ doctorName, appointmentDate, status: 'active' })
+                });
+
+                if (response.ok) {
+                    showToast("Randevu başarıyla eklendi!");
+                    fetchAll();
+                }
+            } catch (error) { showToast("Sunucu hatası!", true); }
+            closeModal();
+        }
+
+        function renderLists() {
+            const activeDiv = document.getElementById('activeList');
+            const pastDiv = document.getElementById('pastList');
+            
+            const actives = allAppointments.filter(a => a.status !== 'completed');
+            const pasts = allAppointments.filter(a => a.status === 'completed');
+
+            activeDiv.innerHTML = actives.length ? actives.map(a => `
+                <div class="appointment-card">
+                    <strong>${a.doctorName}</strong><br>
+                    <small>Tarih: ${a.appointmentDate}</small>
+                </div>
+            `).join('') : '<p style="color:#999; font-size:13px;">Aktif randevu yok.</p>';
+
+            pastDiv.innerHTML = pasts.length ? pasts.map(a => `
+                <div class="appointment-card past-card">
+                    <strong>${a.doctorName}</strong><br>
+                    <small>Tamamlandı: ${a.appointmentDate}</small>
+                </div>
+            `).join('') : '<p style="color:#999; font-size:13px;">Geçmiş kayıt yok.</p>';
+        }
+    </script>
+</body>
+</html>

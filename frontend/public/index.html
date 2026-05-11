@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MHRS - Ana Sayfa</title>
+    <style>
+        /* Modern ve Grimsı Arka Plan */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Beyaz Panel */
+        .container {
+            background-color: #ffffff;
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+
+        /* Buton Grubu */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .btn {
+            text-decoration: none;
+            color: white;
+            padding: 18px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        /* Hasta Girişi - Mavi */
+        .btn-patient {
+            background-color: #007bff;
+        }
+        .btn-patient:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        /* Doktor Girişi - Yeşil */
+        .btn-doctor {
+            background-color: #28a745;
+        }
+        .btn-doctor:hover {
+            background-color: #1e7e34;
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>MHRS Sistemi</h1>
+        <p>Lütfen giriş yapmak istediğiniz paneli seçin</p>
+        
+        <div class="btn-group">
+            <a href="login.html" class="btn btn-patient">Hasta Girişi</a>
+            <a href="doctor/dashboard.html" class="btn btn-doctor">Doktor Girişi</a>
+        </div>
+    </div>
+
+</body>
+</html>
