@@ -1,28 +1,25 @@
 - hosts: web
   become: yes
   tasks:
-    - name: Docker eklentilerini guncelle
-      apt:
-        update_cache: yes
-
-    - name: Docker Compose (V2) yukle
+    - name: Docker eklentilerini kontrol et
       apt:
         name: docker-compose-v2
         state: present
+        update_cache: yes
 
     - name: Mevcut sistemi durdur
-      shell: "cd /home/ubuntu/project && (docker compose down || docker-compose down || true)"
+      shell: "cd /home/ubuntu/project && docker compose down || true"
 
-    - name: Proje klasörünü temizle ve olustur
-      file:
-        path: /home/ubuntu/project
-        state: directory
-        mode: '0755'
-
-    - name: Dosyaları kopyala
+    - name: Dosyalari kopyala
       copy:
         src: ../
         dest: /home/ubuntu/project/
 
-    - name: MHRS Sistemini Başlat (V2 Komutu ile)
-      shell: "cd /home/ubuntu/project && docker compose up -d --build"
+    - name: MHRS Backend Build
+      shell: "cd /home/ubuntu/project && docker compose build backend"
+
+    - name: MHRS Frontend Build
+      shell: "cd /home/ubuntu/project && docker compose build frontend"
+
+    - name: MHRS Sistemini Baslat
+      shell: "cd /home/ubuntu/project && docker compose up -d"
