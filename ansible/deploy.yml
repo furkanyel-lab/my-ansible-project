@@ -1,25 +1,24 @@
 - hosts: web
   become: yes
   tasks:
-    - name: Docker eklentilerini kontrol et
+    - name: Docker eklentisini kontrol et
       apt:
         name: docker-compose-v2
         state: present
-        update_cache: yes
 
-    - name: Mevcut sistemi durdur
-      shell: "cd /home/ubuntu/project && docker compose down || true"
+    - name: Mevcut sistemi durdur ve temizle
+      shell: "cd /home/ubuntu/project && docker compose down --remove-orphans || true"
 
-    - name: Dosyalari kopyala
+    - name: Dosyaları kopyala
       copy:
         src: ../
         dest: /home/ubuntu/project/
 
-    - name: MHRS Backend Build
-      shell: "cd /home/ubuntu/project && docker compose build backend"
+    - name: Adim 1 - Sadece Backend Build
+      shell: "cd /home/ubuntu/project && docker compose build --no-cache backend"
 
-    - name: MHRS Frontend Build
-      shell: "cd /home/ubuntu/project && docker compose build frontend"
+    - name: Adim 2 - Sadece Frontend Build
+      shell: "cd /home/ubuntu/project && docker compose build --no-cache frontend"
 
-    - name: MHRS Sistemini Baslat
+    - name: Adim 3 - MHRS Sistemini Baslat
       shell: "cd /home/ubuntu/project && docker compose up -d"
