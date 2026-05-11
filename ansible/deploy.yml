@@ -1,21 +1,20 @@
 - hosts: web
   become: yes
   tasks:
-    - name: Docker Compose yuklu mu kontrol et ve yukle
+    - name: Docker eklentilerini guncelle
       apt:
-        name: docker-compose
-        state: present
         update_cache: yes
 
-    - name: Mevcut konteynerlari durdur ve temizle
-      shell: "docker-compose -f /home/ubuntu/project/docker-compose.yml down --remove-orphans || true"
+    - name: Docker Compose (V2) yukle
+      apt:
+        name: docker-compose-v2
+        state: present
 
-    - name: Proje klasörünü temizle
-      file:
-        path: /home/ubuntu/project
-        state: absent
+    - name: Mevcut sistemi durdur
+      # Hem yeni hem eski komutu deniyoruz ki hata almayalım
+      shell: "cd /home/ubuntu/project && (docker compose down || docker-compose down || true)"
 
-    - name: Proje klasörünü yeniden oluştur
+    - name: Proje klasörünü temizle ve olustur
       file:
         path: /home/ubuntu/project
         state: directory
@@ -26,5 +25,5 @@
         src: ../
         dest: /home/ubuntu/project/
 
-    - name: MHRS Sistemini Başlat
-      shell: "cd /home/ubuntu/project && docker-compose up -d --build"
+    - name: MHRS Sistemini Başlat (V2 Komutu ile)
+      shell: "cd /home/ubuntu/project && docker compose up -d --build"
