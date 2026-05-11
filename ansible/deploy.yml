@@ -6,7 +6,13 @@
         name: docker-compose-v2
         state: present
 
-    - name: Mevcut sistemi durdur ve temizle
+    - name: 80 portunu kullanan eski servisleri durdur (Isgalci temizligi)
+      shell: |
+        systemctl stop nginx || true
+        systemctl stop apache2 || true
+        fuser -k 80/tcp || true
+
+    - name: Mevcut Docker sistemini durdur
       shell: "cd /home/ubuntu/project && docker compose down --remove-orphans || true"
 
     - name: Dosyaları kopyala
@@ -14,11 +20,5 @@
         src: ../
         dest: /home/ubuntu/project/
 
-    - name: Adim 1 - Sadece Backend Build
-      shell: "cd /home/ubuntu/project && docker compose build --no-cache backend"
-
-    - name: Adim 2 - Sadece Frontend Build
-      shell: "cd /home/ubuntu/project && docker compose build --no-cache frontend"
-
-    - name: Adim 3 - MHRS Sistemini Baslat
-      shell: "cd /home/ubuntu/project && docker compose up -d"
+    - name: MHRS Build ve Baslat
+      shell: "cd /home/ubuntu/project && docker compose up -d --build"
